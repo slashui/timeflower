@@ -1,0 +1,15 @@
+#
+# The first event should be birth.
+# The date should match start_date in content/index.md.
+#
+"1990-01-01":
+    - headline: "🐣 我来啦！"
+      description: "早！世界"
+      based: "北京"
+      
+#
+"2025-02-18":
+    - headline: "🐣 我来啦！"
+      description: "早！世界"
+      based: "北京"
+      
