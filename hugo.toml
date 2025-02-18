@@ -1,7 +1,7 @@
-baseURL = 'https://weeks.ginatrapani.org/'
+baseURL = 'https://yoyo.timeflower.live/'
 languageCode = 'en-us'
 title = 'My Life in Weeks'
-disableKinds = ["taxonomy", "taxonomy"]
+disableKinds = ["taxonomy", "term"]
 enableEmoji = true
 
 
