@@ -1,0 +1,12 @@
+name = "timeflower"
+compatibility_date = "2023-01-01"
+
+[build]
+command = "hugo"
+publish = "public"
+
+[build.environment]
+HUGO_VERSION = "0.118.2"
+
+[site]
+bucket = "./public"
