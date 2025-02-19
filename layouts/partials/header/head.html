@@ -15,7 +15,7 @@
 
     {{ $options := (dict "targetPath" "css/style.css" "outputStyle" "compressed") }}
     {{ $style := resources.Get "sass/main.scss" | resources.ToCSS $options | resources.Minify | resources.Fingerprint }}
-
+    <link rel="stylesheet" href="{{ $style.RelPermalink }}" />
     <script src="/js/jquery-3.5.1.min.js"></script>
 
     {{ partial "header/box-colors.html" . }}
