@@ -21,15 +21,15 @@ There are three main loops in this page, each nested inside the other: Years, We
 
 {{ $data := .Site.Data.events }}
 
-{{ $debug := printf "start_date: %#v" .Params.start_date }}
-{{ errorf $debug }}
+{{/* Set default values */}}
+{{ $startDate := .Params.start_date | default "1990-01-01" }}
+{{ $endYear := .Params.end_year | default 2100 }}
 
-{{ $startDate := .Params.start_date }}
 {{ $splitStart := split $startDate "-" }}
 {{ $startYear := int (index $splitStart 0) }}
 {{ $startMonth := index $splitStart 1 }}
 {{ $startDay := index $splitStart 2 }}
-{{ $endYear := int .Params.end_year }}
+
 {{ $.Store.Set "association" "" }}
 {{ $.Store.Set "specificDate" $startDate }}
 
