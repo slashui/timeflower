@@ -1,5 +1,6 @@
-name = "timeflower"
+、name = "timeflower"
 compatibility_date = "2023-01-01"
+pages_build_output_dir = "public"
 
 [build]
 command = "hugo --gc --minify"
@@ -8,5 +9,3 @@ publish = "public"
 [build.environment]
 HUGO_VERSION = "0.118.2"
 NODE_VERSION = "18"
-
-pages_build_output_dir = "public"

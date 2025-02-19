@@ -14,8 +14,7 @@
     <script src="/js/bootstrap.bundle.min.js"></script>
 
     {{ $options := (dict "targetPath" "css/style.css" "outputStyle" "compressed") }}
-    {{ $style := resources.Get "/sass/main.scss" | css.Sass | resources.Minify | resources.Fingerprint }}
-    <link rel="stylesheet" href="{{ $style.RelPermalink }}" />
+    {{ $style := resources.Get "sass/main.scss" | resources.ToCSS $options | resources.Minify | resources.Fingerprint }}
 
     <script src="/js/jquery-3.5.1.min.js"></script>
 
