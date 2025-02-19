@@ -23,10 +23,10 @@ There are three main loops in this page, each nested inside the other: Years, We
 
 {{ $startDate := .Params.start_date }}
 {{ $splitStart := split $startDate "-" }}
-{{ $startYear := index $splitStart 0 }}
+{{ $startYear := int (index $splitStart 0) }}
 {{ $startMonth := index $splitStart 1 }}
 {{ $startDay := index $splitStart 2 }}
-{{ $endYear := .Params.end_year }}
+{{ $endYear := int .Params.end_year }}
 {{ $.Store.Set "association" "" }}
 {{ $.Store.Set "specificDate" $startDate }}
 
