@@ -21,6 +21,9 @@ There are three main loops in this page, each nested inside the other: Years, We
 
 {{ $data := .Site.Data.events }}
 
+{{ $debug := printf "start_date: %#v" .Params.start_date }}
+{{ errorf $debug }}
+
 {{ $startDate := .Params.start_date }}
 {{ $splitStart := split $startDate "-" }}
 {{ $startYear := int (index $splitStart 0) }}
