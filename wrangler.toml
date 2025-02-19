@@ -2,14 +2,11 @@ name = "timeflower"
 compatibility_date = "2023-01-01"
 
 [build]
-command = "hugo"
+command = "hugo --gc --minify"
 publish = "public"
-
-[site]
-bucket = "./public"
 
 [build.environment]
 HUGO_VERSION = "0.118.2"
+NODE_VERSION = "18"
 
-# Cloudflare Pages 需要这个配置
 pages_build_output_dir = "public"
