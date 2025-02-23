@@ -2,13 +2,10 @@ import yaml from 'js-yaml';
 
 export async function onRequest(context) {
   try {
-    // 添加调试信息
-    console.log('Available env bindings:', Object.keys(context.env));
-    
     // 检查 KV 绑定
-    if (!context.env.YOYO_TIMEEVENT) {
+    if (!context.env['YOYO-TIMEEVENT']) {
       const availableBindings = Object.keys(context.env).join(', ');
-      throw new Error(`KV binding YOYO_TIMEEVENT not found. Available bindings: ${availableBindings}`);
+      throw new Error(`KV binding YOYO-TIMEEVENT not found. Available bindings: ${availableBindings}`);
     }
 
     const response = await fetch('https://raw.githubusercontent.com/slashui/timeflower/main/data/events.yml');
@@ -20,7 +17,7 @@ export async function onRequest(context) {
     // Migrate to KV
     for (const [date, eventArray] of Object.entries(events)) {
       const event = eventArray[0];
-      await context.env.YOYO_TIMEEVENT.put(date, JSON.stringify(event));
+      await context.env['YOYO-TIMEEVENT'].put(date, JSON.stringify(event));
     }
     
     return new Response('Migration completed!', {
