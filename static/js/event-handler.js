@@ -71,3 +71,29 @@ async function saveEvent() {
         alert('保存失败，请重试');
     }
 }
+
+async function loadEvents() {
+  try {
+    const response = await fetch('/api/get-events');
+    const events = await response.json();
+    updateEventButtons(events);
+  } catch (error) {
+    console.error('Failed to load events:', error);
+  }
+}
+
+function updateEventButtons(events) {
+  Object.entries(events).forEach(([date, eventArray]) => {
+    const event = eventArray[0];
+    const button = document.querySelector(`button[data-date="${date}"]`);
+    if (button) {
+      button.dataset.headline = event.headline;
+      button.dataset.description = event.description;
+      button.dataset.based = event.based;
+      button.textContent = event.headline;
+    }
+  });
+}
+
+// 页面加载时获取事件数据
+document.addEventListener('DOMContentLoaded', loadEvents);
