@@ -65,7 +65,7 @@ async function saveEvent() {
     formData.append('description', document.getElementById('edit-description').value);
     formData.append('based', document.getElementById('edit-based').value);
     
-    // 处理多图片上传
+    // Handle image files
     const imageFiles = document.getElementById('edit-images').files;
     for (let i = 0; i < imageFiles.length; i++) {
         formData.append('images', imageFiles[i]);
@@ -74,20 +74,20 @@ async function saveEvent() {
     try {
         const response = await fetch('/api/update-event', {
             method: 'POST',
-            body: formData
+            body: formData  // Remove Content-Type header to let browser set it
         });
 
         if (response.ok) {
             const result = await response.json();
             
-            // 更新显示内容
+            // Update display content
             document.getElementById('display-headline').textContent = formData.get('headline');
             document.getElementById('display-description').textContent = formData.get('description');
             document.getElementById('display-based').textContent = formData.get('based');
             
-            // 更新图片显示
-            const displayImages = document.getElementById('display-images');
+            // Update image display
             if (result.imageUrls && result.imageUrls.length > 0) {
+                const displayImages = document.getElementById('display-images');
                 displayImages.innerHTML = result.imageUrls.map(url => `
                     <div class="image-item">
                         <img src="${url}" class="img-thumbnail">
@@ -95,15 +95,17 @@ async function saveEvent() {
                 `).join('');
             }
             
-            // 切换回显示模式
+            // Switch back to view mode
             cancelEdit();
             
-            // 重新加载所有事件数据
+            // Reload all event data
             await loadEvents();
             
             alert('保存成功！');
         } else {
-            alert('保存失败，请重试');
+            const errorData = await response.json();
+            console.error('Save failed:', errorData);
+            alert(`保存失败：${errorData.error}`);
         }
     } catch (error) {
         console.error('Error:', error);
