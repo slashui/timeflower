@@ -4,6 +4,7 @@
             <h3 id="display-headline"></h3>
             <p id="display-description"></p>
             <p>位置：<span id="display-based"></span></p>
+            <div id="display-images" class="image-gallery"></div>
             <button class="btn btn-primary" onclick="switchToEdit()">编辑</button>
         </div>
         
@@ -20,6 +21,11 @@
             <div class="mb-3">
                 <label class="form-label">位置</label>
                 <input type="text" class="form-control" id="edit-based">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">图片</label>
+                <input type="file" class="form-control" id="edit-images" multiple accept="image/*">
+                <div id="image-preview" class="image-gallery mt-2"></div>
             </div>
             <button type="button" class="btn btn-secondary me-2" onclick="cancelEdit()">取消</button>
             <button type="button" class="btn btn-primary" onclick="saveEvent()">保存</button>
