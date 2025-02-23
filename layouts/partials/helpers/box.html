@@ -1,7 +1,11 @@
 <button type="button"
     class="{{ $.Store.Get "buttonClass" }}"
     data-date="{{ $.Store.Get "buttonDataDate" }}"
+    data-headline="{{ $.Store.Get "buttonLabel" }}"
+    data-description="{{ $.Store.Get "buttonDataBSTitle" }}"
+    data-based="{{ $.Store.Get "based" }}"
     data-bs-toggle="tooltip"
     data-bs-placement="bottom"
     data-bs-custom-class="custom-tooltip"
-    data-bs-title="{{ $.Store.Get "buttonDataBSTitle" }}">{{ $.Store.Get "buttonLabel" }}</button>
+    data-bs-title="{{ $.Store.Get "buttonDataBSTitle" }}"
+    onclick="showEventDetail(this)">{{ $.Store.Get "buttonLabel" }}</button>

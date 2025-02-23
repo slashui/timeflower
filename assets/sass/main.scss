@@ -160,3 +160,46 @@ a:hover {
     --bs-tooltip-bg: var(--highlight-color);
     --bs-tooltip-color: var(--bs-white);
 }
+
+.event-detail {
+    position: fixed;  // 改为 fixed 定位
+    top: 20px;       // 距离顶部距离
+    right: 20px;     // 距离右侧距离
+    width: 300px;    // 设置固定宽度
+    padding: 1rem;
+    background-color: var(--main-bg-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    z-index: 1000;   // 确保显示在最上层
+    
+    #event-display {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+
+
+    .form-control {
+        background-color: white;
+        margin-bottom: 1rem;
+    }
+    
+    label {
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    button {
+        margin-top: 1rem;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

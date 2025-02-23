@@ -1,0 +1,10 @@
+<button type="button"
+    class="btn week {{ .based }}  {{ if .first }}text-nowrap text-left{{ else }}w-100{{ end }}"
+    data-date="{{ .date }}"
+    data-headline="{{ .headline }}"
+    data-description="{{ .description }}"
+    data-based="{{ .based }}"
+    data-bs-toggle="tooltip"
+    data-bs-placement="bottom"
+    data-bs-custom-class="custom-tooltip"
+    data-bs-title="{{ .description }}">{{ .headline }}</button>

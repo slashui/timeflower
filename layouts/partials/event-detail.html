@@ -1,0 +1,28 @@
+<div class="event-detail">
+    <div id="event-display">
+        <div id="view-mode">
+            <h3 id="display-headline"></h3>
+            <p id="display-description"></p>
+            <p>位置：<span id="display-based"></span></p>
+            <button class="btn btn-primary" onclick="switchToEdit()">编辑</button>
+        </div>
+        
+        <form id="edit-mode" class="d-none">
+            <input type="hidden" id="edit-date">
+            <div class="mb-3">
+                <label class="form-label">标题</label>
+                <input type="text" class="form-control" id="edit-headline">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">描述</label>
+                <textarea class="form-control" id="edit-description" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">位置</label>
+                <input type="text" class="form-control" id="edit-based">
+            </div>
+            <button type="button" class="btn btn-secondary me-2" onclick="cancelEdit()">取消</button>
+            <button type="button" class="btn btn-primary" onclick="saveEvent()">保存</button>
+        </form>
+    </div>
+</div>
