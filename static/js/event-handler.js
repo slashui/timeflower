@@ -56,42 +56,66 @@ document.getElementById('edit-images').addEventListener('change', function(e) {
     }
 });
 
-
 async function saveEvent() {
     try {
+        console.group('保存事件流程开始');
         const imageUrls = [];
         const imageFiles = document.getElementById('edit-images').files;
-        console.log('开始处理图片上传，图片数量:', imageFiles.length);
+        console.log('📸 准备上传图片:', {
+            图片数量: imageFiles.length,
+            图片列表: Array.from(imageFiles).map(f => ({
+                名称: f.name,
+                类型: f.type,
+                大小: `${(f.size/1024).toFixed(2)}KB`
+            }))
+        });
         
         // 先上传所有图片
         for (let i = 0; i < imageFiles.length; i++) {
-            console.log('正在上传图片:', imageFiles[i].name);
+            console.group(`上传第 ${i + 1} 张图片`);
+            const file = imageFiles[i];
+            console.log('🔄 开始上传:', {
+                文件名: file.name,
+                类型: file.type,
+                大小: `${(file.size/1024).toFixed(2)}KB`
+            });
+            
             const formData = new FormData();
-            formData.append('image', imageFiles[i]);
+            formData.append('image', file);
             
             try {
+                console.log('⬆️ 发送上传请求...');
                 const uploadResponse = await fetch('/api/upload-image', {
                     method: 'POST',
                     body: formData
                 });
                 
+                console.log('📥 收到响应:', {
+                    状态: uploadResponse.status,
+                    状态文本: uploadResponse.statusText
+                });
+                
                 if (uploadResponse.ok) {
                     const result = await uploadResponse.json();
-                    console.log('图片上传成功:', result);
+                    console.log('✅ 上传成功:', result);
                     if (result.url) {
                         imageUrls.push(result.url);
+                        console.log('📝 已添加URL:', result.url);
                     }
                 } else {
                     const errorData = await uploadResponse.json();
+                    console.error('❌ 上传失败:', errorData);
                     throw new Error(`图片上传失败: ${errorData.error || '未知错误'}`);
                 }
             } catch (uploadError) {
-                console.error('图片上传错误:', uploadError);
-                throw new Error(`图片 ${imageFiles[i].name} 上传失败: ${uploadError.message}`);
+                console.error('❌ 上传过程错误:', uploadError);
+                throw new Error(`图片 ${file.name} 上传失败: ${uploadError.message}`);
+            } finally {
+                console.groupEnd();
             }
         }
         
-        console.log('所有图片上传完成，URLs:', imageUrls);
+        console.log('📸 所有图片上传完成，URLs:', imageUrls);
         
         // 保存事件数据
         const eventData = {
@@ -102,9 +126,10 @@ async function saveEvent() {
             imageUrls: imageUrls
         };
 
-        console.log('准备保存事件数据:', eventData);
+        console.log('📦 准备保存事件数据:', eventData);
 
         try {
+            console.log('⬆️ 发送保存请求...');
             const response = await fetch('/api/update-event', {
                 method: 'POST',
                 headers: {
@@ -113,10 +138,16 @@ async function saveEvent() {
                 body: JSON.stringify(eventData)
             });
 
+            console.log('📥 收到保存响应:', {
+                状态: response.status,
+                状态文本: response.statusText
+            });
+
             if (response.ok) {
                 const result = await response.json();
-                console.log('保存成功:', result);
+                console.log('✅ 保存成功:', result);
 
+                console.log('🔄 更新界面显示...');
                 // 更新显示内容
                 document.getElementById('display-headline').textContent = eventData.headline;
                 document.getElementById('display-description').textContent = eventData.description;
@@ -133,22 +164,25 @@ async function saveEvent() {
                 // 切换回显示模式
                 cancelEdit();
                 
-                // 重新加载所有事件数据
+                console.log('🔄 重新加载事件数据...');
                 await loadEvents();
                 
+                console.log('✨ 全部完成！');
                 alert('保存成功！');
             } else {
                 const errorData = await response.json();
-                console.error('保存失败:', errorData);
+                console.error('❌ 保存失败:', errorData);
                 throw new Error(errorData.error || '保存失败');
             }
         } catch (saveError) {
-            console.error('保存事件数据错误:', saveError);
+            console.error('❌ 保存事件数据错误:', saveError);
             throw new Error(`保存失败: ${saveError.message}`);
         }
     } catch (error) {
-        console.error('整体错误:', error);
+        console.error('❌ 整体错误:', error);
         alert(`操作失败: ${error.message}`);
+    } finally {
+        console.groupEnd();
     }
 }
 
