@@ -2,11 +2,12 @@ export async function onRequest(context) {
   // Handle CORS preflight
   if (context.request.method === "OPTIONS") {
     return new Response(null, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-      },
+        headers: {
+            "Access-Control-Allow-Origin": "https://timeflower.pages.dev",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Max-Age": "86400",
+          },
     });
   }
 
@@ -35,7 +36,7 @@ export async function onRequest(context) {
     }), {
       headers: { 
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': 'https://timeflower.pages.dev'
       }
     });
   } catch (error) {
