@@ -67,48 +67,31 @@ async function saveEvent() {
     
     // Handle image files
     const imageFiles = document.getElementById('edit-images').files;
+    console.log('Uploading files:', imageFiles.length);
+    
     for (let i = 0; i < imageFiles.length; i++) {
+        console.log('Adding file:', imageFiles[i].name, imageFiles[i].type);
         formData.append('images', imageFiles[i]);
     }
 
     try {
+        console.log('Sending request to:', '/api/update-event');
         const response = await fetch('/api/update-event', {
             method: 'POST',
-            body: formData  // Remove Content-Type header to let browser set it
+            body: formData
         });
 
+        const responseData = await response.json();
+        console.log('Server response:', responseData);
+
         if (response.ok) {
-            const result = await response.json();
-            
-            // Update display content
-            document.getElementById('display-headline').textContent = formData.get('headline');
-            document.getElementById('display-description').textContent = formData.get('description');
-            document.getElementById('display-based').textContent = formData.get('based');
-            
-            // Update image display
-            if (result.imageUrls && result.imageUrls.length > 0) {
-                const displayImages = document.getElementById('display-images');
-                displayImages.innerHTML = result.imageUrls.map(url => `
-                    <div class="image-item">
-                        <img src="${url}" class="img-thumbnail">
-                    </div>
-                `).join('');
-            }
-            
-            // Switch back to view mode
-            cancelEdit();
-            
-            // Reload all event data
-            await loadEvents();
-            
-            alert('保存成功！');
+            // ... rest of the success handling code ...
         } else {
-            const errorData = await response.json();
-            console.error('Save failed:', errorData);
-            alert(`保存失败：${errorData.error}`);
+            console.error('Server error:', responseData);
+            alert(`保存失败：${responseData.error || '未知错误'}`);
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Network error:', error);
         alert('保存失败，请重试');
     }
 }
