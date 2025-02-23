@@ -37,7 +37,6 @@ async function saveEvent() {
     };
 
     try {
-        // 直接请求当前域名的 API
         const response = await fetch('/api/update-event', {
             method: 'POST',
             headers: {
@@ -55,14 +54,11 @@ async function saveEvent() {
             // 切换回显示模式
             cancelEdit();
             
-            // 更新按钮的数据属性
-            const button = document.querySelector(`button[data-date="${eventData.date}"]`);
-            if (button) {
-                button.dataset.headline = eventData.headline;
-                button.dataset.description = eventData.description;
-                button.dataset.based = eventData.based;
-                button.textContent = eventData.headline;
-            }
+            // 重新加载所有事件数据
+            await loadEvents();
+            
+            // 显示成功消息
+            alert('保存成功！');
         } else {
             alert('保存失败，请重试');
         }
