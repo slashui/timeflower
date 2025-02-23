@@ -57,31 +57,41 @@ document.getElementById('edit-images').addEventListener('change', function(e) {
 });
 
 
-
 async function saveEvent() {
     try {
         const imageUrls = [];
         const imageFiles = document.getElementById('edit-images').files;
+        console.log('开始处理图片上传，图片数量:', imageFiles.length);
         
         // 先上传所有图片
         for (let i = 0; i < imageFiles.length; i++) {
+            console.log('正在上传图片:', imageFiles[i].name);
             const formData = new FormData();
             formData.append('image', imageFiles[i]);
             
-            const uploadResponse = await fetch('/api/upload-image', {
-                method: 'POST',
-                body: formData
-            });
-            
-            if (uploadResponse.ok) {
-                const result = await uploadResponse.json();
-                if (result.url) {
-                    imageUrls.push(result.url);
+            try {
+                const uploadResponse = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (uploadResponse.ok) {
+                    const result = await uploadResponse.json();
+                    console.log('图片上传成功:', result);
+                    if (result.url) {
+                        imageUrls.push(result.url);
+                    }
+                } else {
+                    const errorData = await uploadResponse.json();
+                    throw new Error(`图片上传失败: ${errorData.error || '未知错误'}`);
                 }
-            } else {
-                throw new Error('图片上传失败');
+            } catch (uploadError) {
+                console.error('图片上传错误:', uploadError);
+                throw new Error(`图片 ${imageFiles[i].name} 上传失败: ${uploadError.message}`);
             }
         }
+        
+        console.log('所有图片上传完成，URLs:', imageUrls);
         
         // 保存事件数据
         const eventData = {
@@ -92,42 +102,53 @@ async function saveEvent() {
             imageUrls: imageUrls
         };
 
-        const response = await fetch('/api/update-event', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(eventData)
-        });
+        console.log('准备保存事件数据:', eventData);
 
-        if (response.ok) {
-            // 更新显示内容
-            document.getElementById('display-headline').textContent = eventData.headline;
-            document.getElementById('display-description').textContent = eventData.description;
-            document.getElementById('display-based').textContent = eventData.based;
-            
-            // 更新图片显示
-            const displayImages = document.getElementById('display-images');
-            displayImages.innerHTML = imageUrls.map(url => `
-                <div class="image-item">
-                    <img src="${url}" class="img-thumbnail">
-                </div>
-            `).join('');
-            
-            // 切换回显示模式
-            cancelEdit();
-            
-            // 重新加载所有事件数据
-            await loadEvents();
-            
-            alert('保存成功！');
-        } else {
-            const errorData = await response.json();
-            alert(`保存失败：${errorData.error || '未知错误'}`);
+        try {
+            const response = await fetch('/api/update-event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(eventData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('保存成功:', result);
+
+                // 更新显示内容
+                document.getElementById('display-headline').textContent = eventData.headline;
+                document.getElementById('display-description').textContent = eventData.description;
+                document.getElementById('display-based').textContent = eventData.based;
+                
+                // 更新图片显示
+                const displayImages = document.getElementById('display-images');
+                displayImages.innerHTML = imageUrls.map(url => `
+                    <div class="image-item">
+                        <img src="${url}" class="img-thumbnail">
+                    </div>
+                `).join('');
+                
+                // 切换回显示模式
+                cancelEdit();
+                
+                // 重新加载所有事件数据
+                await loadEvents();
+                
+                alert('保存成功！');
+            } else {
+                const errorData = await response.json();
+                console.error('保存失败:', errorData);
+                throw new Error(errorData.error || '保存失败');
+            }
+        } catch (saveError) {
+            console.error('保存事件数据错误:', saveError);
+            throw new Error(`保存失败: ${saveError.message}`);
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('保存失败，请重试');
+        console.error('整体错误:', error);
+        alert(`操作失败: ${error.message}`);
     }
 }
 
