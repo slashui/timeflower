@@ -85,7 +85,7 @@ async function saveEvent() {
             
             try {
                 console.log('⬆️ 发送上传请求...');
-                const uploadResponse = await fetch('/api/upload-image', {
+                const uploadResponse = await fetch('https://yoyo.timeflower.live/api/upload-image', {
                     method: 'POST',
                     body: formData
                 });
@@ -130,7 +130,7 @@ async function saveEvent() {
 
         try {
             console.log('⬆️ 发送保存请求...');
-            const response = await fetch('/api/update-event', {
+            const response = await fetch('https://yoyo.timeflower.live/api/update-event', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
