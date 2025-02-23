@@ -2,9 +2,13 @@ import yaml from 'js-yaml';
 
 export async function onRequest(context) {
   try {
+    // 添加调试信息
+    console.log('Available env bindings:', Object.keys(context.env));
+    
     // 检查 KV 绑定
     if (!context.env.YOYO_TIMEEVENT) {
-      throw new Error('KV binding YOYO_TIMEEVENT not found. Please check your Cloudflare Pages settings.');
+      const availableBindings = Object.keys(context.env).join(', ');
+      throw new Error(`KV binding YOYO_TIMEEVENT not found. Available bindings: ${availableBindings}`);
     }
 
     const response = await fetch('https://raw.githubusercontent.com/slashui/timeflower/main/data/events.yml');
