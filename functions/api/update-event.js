@@ -1,63 +1,88 @@
 export async function onRequest(context) {
-    try {
-      const formData = await context.request.formData();
-      console.log('Received form data:', {
-        date: formData.get('date'),
-        headline: formData.get('headline'),
-        imageCount: formData.getAll('images').length
-      });
+  try {
+    // Check if request is multipart/form-data
+    const contentType = context.request.headers.get('content-type');
+    if (!contentType || !contentType.includes('multipart/form-data')) {
+      throw new Error(`Invalid content type: ${contentType}`);
+    }
 
-      const date = formData.get('date');
-      const images = formData.getAll('images');
-      const imageUrls = [];
-  
-      // 上传所有图片到 R2
+    const formData = await context.request.formData();
+    
+    // Validate required fields
+    const date = formData.get('date');
+    if (!date) throw new Error('Date is required');
+
+    // Log received data
+    console.log('Processing request:', {
+      date,
+      headline: formData.get('headline'),
+      hasImages: formData.has('images')
+    });
+
+    // Check R2 binding
+    if (!context.env.YOYOPIC) {
+      throw new Error('R2 bucket binding not found');
+    }
+
+    const images = formData.getAll('images');
+    const imageUrls = [];
+
+    // Upload images if any
+    if (images.length > 0) {
       for (const image of images) {
+        if (!image.type.startsWith('image/')) {
+          throw new Error(`Invalid file type: ${image.type}`);
+        }
+
+        const fileName = `events/${date}/${Date.now()}-${image.name}`;
         try {
-          console.log('Processing image:', image.name, image.type);
-          const fileName = `events/${date}/${Date.now()}-${image.name}`;
           await context.env.YOYOPIC.put(fileName, image, {
             httpMetadata: {
               contentType: image.type,
             }
           });
           imageUrls.push(`https://yoyopic.timeflower.live/${fileName}`);
-          console.log('Successfully uploaded:', fileName);
         } catch (uploadError) {
-          console.error('Image upload error:', uploadError);
-          throw new Error(`Failed to upload image ${image.name}: ${uploadError.message}`);
+          throw new Error(`Failed to upload ${image.name}: ${uploadError.message}`);
         }
       }
-  
-      // 保存事件数据到 KV
-      try {
-        const eventData = {
-          headline: formData.get('headline'),
-          description: formData.get('description'),
-          based: formData.get('based'),
-          imageUrls: imageUrls
-        };
-        console.log('Saving to KV:', eventData);
-        await context.env['YOYO-TIMEEVENT'].put(date, JSON.stringify(eventData));
-      } catch (kvError) {
-        console.error('KV save error:', kvError);
-        throw new Error(`Failed to save to KV: ${kvError.message}`);
-      }
-  
-      return new Response(JSON.stringify({ 
-        success: true,
-        imageUrls: imageUrls
-      }), {
-        headers: { 'Content-Type': 'application/json' }
-      });
-    } catch (error) {
-      console.error('Main error:', error);
-      return new Response(JSON.stringify({ 
-        error: error.message,
-        stack: error.stack
-      }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
     }
+
+    // Save to KV
+    const eventData = {
+      headline: formData.get('headline'),
+      description: formData.get('description'),
+      based: formData.get('based'),
+      imageUrls: imageUrls
+    };
+
+    try {
+      await context.env['YOYO-TIMEEVENT'].put(date, JSON.stringify(eventData));
+    } catch (kvError) {
+      throw new Error(`KV save failed: ${kvError.message}`);
+    }
+
+    return new Response(JSON.stringify({ 
+      success: true,
+      imageUrls: imageUrls
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack
+    });
+    
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      details: error.stack
+    }), {
+      status: 500,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
+  }
 }
