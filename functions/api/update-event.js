@@ -2,8 +2,12 @@ export async function onRequest(context) {
   try {
     const data = await context.request.json();
     
-    // 这里添加数据处理逻辑
-    // 可以使用 Cloudflare KV 或 D1 存储数据
+    // 存储到 KV
+    await context.env.EVENTS_KV.put(data.date, JSON.stringify({
+      headline: data.headline,
+      description: data.description,
+      based: data.based
+    }));
     
     return new Response(JSON.stringify({ success: true }), {
       headers: {
