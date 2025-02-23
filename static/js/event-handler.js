@@ -59,39 +59,74 @@ document.getElementById('edit-images').addEventListener('change', function(e) {
 
 
 async function saveEvent() {
-    const formData = new FormData();
-    formData.append('date', document.getElementById('edit-date').value);
-    formData.append('headline', document.getElementById('edit-headline').value);
-    formData.append('description', document.getElementById('edit-description').value);
-    formData.append('based', document.getElementById('edit-based').value);
-    
-    // Handle image files
-    const imageFiles = document.getElementById('edit-images').files;
-    console.log('Uploading files:', imageFiles.length);
-    
-    for (let i = 0; i < imageFiles.length; i++) {
-        console.log('Adding file:', imageFiles[i].name, imageFiles[i].type);
-        formData.append('images', imageFiles[i]);
-    }
-
     try {
-        console.log('Sending request to:', '/api/update-event');
+        const imageUrls = [];
+        const imageFiles = document.getElementById('edit-images').files;
+        
+        // 先上传所有图片
+        for (let i = 0; i < imageFiles.length; i++) {
+            const formData = new FormData();
+            formData.append('image', imageFiles[i]);
+            
+            const uploadResponse = await fetch('/api/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (uploadResponse.ok) {
+                const result = await uploadResponse.json();
+                if (result.url) {
+                    imageUrls.push(result.url);
+                }
+            } else {
+                throw new Error('图片上传失败');
+            }
+        }
+        
+        // 保存事件数据
+        const eventData = {
+            date: document.getElementById('edit-date').value,
+            headline: document.getElementById('edit-headline').value,
+            description: document.getElementById('edit-description').value,
+            based: document.getElementById('edit-based').value,
+            imageUrls: imageUrls
+        };
+
         const response = await fetch('/api/update-event', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(eventData)
         });
 
-        const responseData = await response.json();
-        console.log('Server response:', responseData);
-
         if (response.ok) {
-            // ... rest of the success handling code ...
+            // 更新显示内容
+            document.getElementById('display-headline').textContent = eventData.headline;
+            document.getElementById('display-description').textContent = eventData.description;
+            document.getElementById('display-based').textContent = eventData.based;
+            
+            // 更新图片显示
+            const displayImages = document.getElementById('display-images');
+            displayImages.innerHTML = imageUrls.map(url => `
+                <div class="image-item">
+                    <img src="${url}" class="img-thumbnail">
+                </div>
+            `).join('');
+            
+            // 切换回显示模式
+            cancelEdit();
+            
+            // 重新加载所有事件数据
+            await loadEvents();
+            
+            alert('保存成功！');
         } else {
-            console.error('Server error:', responseData);
-            alert(`保存失败：${responseData.error || '未知错误'}`);
+            const errorData = await response.json();
+            alert(`保存失败：${errorData.error || '未知错误'}`);
         }
     } catch (error) {
-        console.error('Network error:', error);
+        console.error('Error:', error);
         alert('保存失败，请重试');
     }
 }
